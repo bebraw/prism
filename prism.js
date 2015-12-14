@@ -262,8 +262,21 @@ var _ = _self.Prism = {
 	},
 
 	highlight: function (text, grammar, language) {
-		var tokens = _.tokenize(text, grammar);
-		return Token.stringify(_.util.encode(tokens), language);
+		var env = {
+			element: null,
+			language: language,
+			grammar: grammar,
+			code: text
+		};
+
+		_.hooks.run('before-highlight', env);
+
+		var tokens = _.tokenize(env.code, env.grammar);
+		env.highlightedCode = Token.stringify(_.util.encode(tokens), env.language);
+
+		_.hooks.run('after-highlight', env);
+
+		return env.highlightedCode;
 	},
 
 	matchGrammar: function (text, strarr, grammar, index, startPos, oneshot, target) {
